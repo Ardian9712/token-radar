@@ -205,7 +205,7 @@
     }
     return el('section', { class: 'panel model', 'aria-label': 'How the value is scored' },
       el('h2', { text: 'How the value is scored' }),
-      el('p', { text: 'Implied value = round(TVL x category multiple x growth factor x age factor). The category multiple is the median market-cap/TVL ratio of the snapshot\'s tokened protocols in the same category — at least three comparables, else the global median. The growth factor clamps 1 + 7-day change into 0.8-1.3, and the age factor climbs from 0.9 toward 1.25 with the months since listing; an unknown listing date counts as 12 months.' }),
+      el('p', { text: 'Implied value = round(TVL x category multiple x growth factor x age factor). The category multiple is the median market-cap/TVL ratio of the snapshot\'s tokened protocols in the same category — at least three comparables, else the global median. The growth factor clamps 1 + change_7d/100 into [0.8, 1.3] (change_7d is in per cent, so +2.37% is a factor of 1.024, +12.5% is 1.125, 0 is 1.0 and -12.5% is 0.875), and the age factor climbs from 0.9 toward 1.25 with the months since listing; an unknown listing date counts as 12 months.' }),
       example ? el('p', { class: 'example', text: example }) : null,
       META.model_notes ? el('details', { class: 'notes' },
         el('summary', { text: 'Full model notes and limits' }),

@@ -6,7 +6,7 @@
 // global median), so the model prices a pre-token protocol the way the market already prices its peers.
 //
 //   multiple     = median(mcap_usd / tvl_usd) of tokened protocols in the same category   (>=3 samples, else global)
-//   growthFactor = clamp(1 + change_7d, 0.8, 1.3)
+//   growthFactor = clamp(1 + change_7d / 100, 0.8, 1.3)   (change_7d is in per cent)
 //   ageFactor    = clamp(0.9 + 0.15 x ln(1 + ageMonths) / ln(13), 0.9, 1.25)   (ageMonths unknown: 12)
 //   implied      = round(tvl_usd x multiple x growthFactor x ageFactor), at least $1
 //
@@ -218,7 +218,7 @@ export function multipleFor(p: SnapshotProtocol, multiples: Multiples): number {
 
 /** The week's flow as a multiplier: a 7-day change swings the estimate by at most -20%..+30%. */
 export function growthFactorOf(change7d: number | null): number {
-  return clamp(1 + (change7d ?? 0), GROWTH_FLOOR, GROWTH_CAP);
+  return clamp(1 + (change7d ?? 0) / 100, GROWTH_FLOOR, GROWTH_CAP);
 }
 
 /** The maturity multiplier: young protocols start at 0.9x and climb slowly toward 1.25x. */
@@ -576,7 +576,7 @@ export function parseSnapshot(text: string): Snapshot {
 
 /** The model in words, for the dashboard's method note and the dossier. */
 export const MODEL_NOTES = [
-  'Implied value = round(TVL x category multiple x growth factor x age factor), at least $1. The category multiple is the median market-cap/TVL ratio of the snapshot\'s tokened protocols in the same category, requiring at least three comparables with positive TVL and market cap; thinner categories fall back to the global median (0.21 at this snapshot). The growth factor clamps 1 + change_7d into [0.8, 1.3], so one week of flow can move an estimate by at most -20% to +30%. The age factor is clamp(0.9 + 0.15 x ln(1 + ageMonths) / ln(13), 0.9, 1.25), with age in months from listed_at to 2026-11-14 and an unknown listing date treated as 12 months. The board ranks every protocol that passes the eligibility rule below: 201 rows on this snapshot — the 40 watchlist slugs plus 161 eligible protocols below the floor — ordered by implied value with $1 step-downs on ties.',
+  'Implied value = round(TVL x category multiple x growth factor x age factor), at least $1. The category multiple is the median market-cap/TVL ratio of the snapshot\'s tokened protocols in the same category, requiring at least three comparables with positive TVL and market cap; thinner categories fall back to the global median (0.21 at this snapshot). The growth factor clamps 1 + change_7d/100 into [0.8, 1.3] (change_7d is in per cent, so +2.37% is a factor of 1.024, +12.5% is 1.125, 0 is 1.0 and -12.5% is 0.875), so one week of flow can move an estimate by at most -20% to +30%. The age factor is clamp(0.9 + 0.15 x ln(1 + ageMonths) / ln(13), 0.9, 1.25), with age in months from listed_at to 2026-11-14 and an unknown listing date treated as 12 months. The board ranks every protocol that passes the eligibility rule below: 201 rows on this snapshot — the 40 watchlist slugs plus 161 eligible protocols below the floor — ordered by implied value with $1 step-downs on ties.',
 
   'Medians per category, not means and not one global number: a category\'s tokened protocols are the market\'s own comparable sales, and a lending market is valued differently from a DEX or a bridge. The median resists outliers — one low-float token that traded to an extreme multiple, or one stale market cap, would drag a mean but cannot move a median alone. Requiring three samples keeps single-protocol categories from masquerading as a market price; below that, the global median is the honest fallback.',
 
