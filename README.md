@@ -1,4 +1,10 @@
+[![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![rank](https://make.fun/badge/token-radar-01/Ardian9712/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![reward](https://make.fun/badge/token-radar-01/Ardian9712/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+
 # Token Radar
+
+Built for the [make.fun "Build the best token launch radar" bounty](https://make.fun/bounty/token-radar-01) — referral code `p8atzycs`.
 
 Token Radar reads one sealed snapshot of the DeFi protocol universe (DefiLlama protocols data) and
 ranks the protocols that do not have a token yet by an **implied value** — a screening estimate of
@@ -11,7 +17,7 @@ Version `radar-2-median`. For every pre-token protocol:
 
     multiple     = median(mcap_usd / tvl_usd) of tokened protocols in the same category
                    (at least 3 samples with positive TVL and market cap, else the global median)
-    growthFactor = clamp(1 + change_7d, 0.8, 1.3)
+    growthFactor = clamp(1 + change_7d / 100, 0.8, 1.3)   (change_7d is in per cent)
     ageFactor    = clamp(0.9 + 0.15 x ln(1 + ageMonths) / ln(13), 0.9, 1.25)
     implied      = round(tvl_usd x multiple x growthFactor x ageFactor), at least $1
 
@@ -19,7 +25,8 @@ Version `radar-2-median`. For every pre-token protocol:
   market's own comparable sales, resistant to outliers. A category with fewer than 3 samples falls
   back to the global median.
 - The growth factor lets one week of flow move an estimate by at most -20%..+30%; a missing 7-day
-  change counts as 0.
+  change counts as 0. change_7d is in per cent, so +2.37% is a factor of 1.024, +12.5% is 1.125,
+  0 is 1.0 and -12.5% is 0.875.
 - The age factor starts young protocols at 0.9x and climbs slowly toward 1.25x; an unknown listing
   date is treated as 12 months of age.
 
